@@ -8,6 +8,7 @@
  * Copyright 2020-2021, 2023-2024 NXP
  *   Author: Wolfram Sang <kernel@pengutronix.de>
  */
+#define DEBUG
 
 #include <linux/bitfield.h>
 #include <linux/io.h>
@@ -376,26 +377,31 @@ MODULE_DEVICE_TABLE(of, imx_esdhc_dt_ids);
 
 static inline int is_imx25_esdhc(struct pltfm_imx_data *data)
 {
+	pr_info("mmc0: %s\n", __func__);
 	return data->socdata == &esdhc_imx25_data;
 }
 
 static inline int is_imx53_esdhc(struct pltfm_imx_data *data)
 {
+	pr_info("mmc0: %s\n", __func__);
 	return data->socdata == &esdhc_imx53_data;
 }
 
 static inline int is_s32cc_usdhc(struct pltfm_imx_data *data)
 {
+	pr_info("mmc0: %s\n", __func__);
 	return data->socdata == &usdhc_s32cc_data;
 }
 
 static inline int esdhc_is_usdhc(struct pltfm_imx_data *data)
 {
+	//pr_info("mmc0: %s\n", __func__);
 	return !!(data->socdata->flags & ESDHC_FLAG_USDHC);
 }
 
 static inline void esdhc_clrset_le(struct sdhci_host *host, u32 mask, u32 val, int reg)
 {
+	//pr_info("mmc0: %s\n", __func__);
 	void __iomem *base = host->ioaddr + (reg & ~0x3);
 	u32 shift = (reg & 0x3) * 8;
 
@@ -404,6 +410,7 @@ static inline void esdhc_clrset_le(struct sdhci_host *host, u32 mask, u32 val, i
 
 static inline void esdhc_set_bits(struct sdhci_host *host, u32 addr, u32 bits)
 {
+	pr_info("mmc0: %s\n", __func__);
 	u32 reg;
 
 	reg = readl(host->ioaddr + addr);
@@ -413,6 +420,7 @@ static inline void esdhc_set_bits(struct sdhci_host *host, u32 addr, u32 bits)
 
 static inline void esdhc_clear_bits(struct sdhci_host *host, u32 addr, u32 bits)
 {
+	pr_info("mmc0: %s\n", __func__);
 	u32 reg;
 
 	reg = readl(host->ioaddr + addr);
@@ -425,6 +433,7 @@ static inline void esdhc_clear_bits(struct sdhci_host *host, u32 addr, u32 bits)
 	pr_err("%s: " DRIVER_NAME ": " f, mmc_hostname(host->mmc), ## x)
 static void esdhc_dump_debug_regs(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	int i;
 	char *debug_status[7] = {
 				 "cmd debug status",
@@ -450,6 +459,7 @@ static void esdhc_dump_debug_regs(struct sdhci_host *host)
 
 static inline void esdhc_wait_for_card_clock_gate_off(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	u32 present_state;
 	int ret;
 
@@ -462,6 +472,7 @@ static inline void esdhc_wait_for_card_clock_gate_off(struct sdhci_host *host)
 /* Enable the auto tuning circuit to check the CMD line and BUS line */
 static inline void usdhc_auto_tuning_mode_sel(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	u32 buswidth, auto_tune_buswidth;
 
 	buswidth = USDHC_GET_BUSWIDTH(readl(host->ioaddr + SDHCI_HOST_CONTROL));
@@ -485,6 +496,7 @@ static inline void usdhc_auto_tuning_mode_sel(struct sdhci_host *host)
 
 static u32 esdhc_readl_le(struct sdhci_host *host, int reg)
 {
+	//pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	u32 val = readl(host->ioaddr + reg);
@@ -578,6 +590,7 @@ static u32 esdhc_readl_le(struct sdhci_host *host, int reg)
 
 static void esdhc_writel_le(struct sdhci_host *host, u32 val, int reg)
 {
+	//pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	u32 data;
@@ -629,6 +642,7 @@ static void esdhc_writel_le(struct sdhci_host *host, u32 val, int reg)
 
 static u16 esdhc_readw_le(struct sdhci_host *host, int reg)
 {
+	//pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	u16 ret = 0;
@@ -689,6 +703,7 @@ static u16 esdhc_readw_le(struct sdhci_host *host, int reg)
 
 static void esdhc_writew_le(struct sdhci_host *host, u16 val, int reg)
 {
+	//pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	u32 new_val = 0;
@@ -817,6 +832,7 @@ static void esdhc_writew_le(struct sdhci_host *host, u16 val, int reg)
 
 static u8 esdhc_readb_le(struct sdhci_host *host, int reg)
 {
+	//pr_info("mmc0: %s\n", __func__);
 	u8 ret;
 	u32 val;
 
@@ -836,6 +852,7 @@ static u8 esdhc_readb_le(struct sdhci_host *host, int reg)
 
 static void esdhc_writeb_le(struct sdhci_host *host, u8 val, int reg)
 {
+	//pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	u32 new_val = 0;
@@ -915,6 +932,7 @@ static void esdhc_writeb_le(struct sdhci_host *host, u8 val, int reg)
 
 static unsigned int esdhc_pltfm_get_max_clock(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 
 	return pltfm_host->clock;
@@ -922,6 +940,7 @@ static unsigned int esdhc_pltfm_get_max_clock(struct sdhci_host *host)
 
 static unsigned int esdhc_pltfm_get_min_clock(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 
 	return pltfm_host->clock / 256 / 16;
@@ -930,6 +949,7 @@ static unsigned int esdhc_pltfm_get_min_clock(struct sdhci_host *host)
 static inline void esdhc_pltfm_set_clock(struct sdhci_host *host,
 					 unsigned int clock)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	unsigned int host_clock = pltfm_host->clock;
@@ -998,12 +1018,17 @@ static inline void esdhc_pltfm_set_clock(struct sdhci_host *host,
 		| (div << ESDHC_DIVIDER_SHIFT)
 		| (pre_div << ESDHC_PREDIV_SHIFT));
 	sdhci_writel(host, temp, ESDHC_SYSTEM_CONTROL);
+	pr_info("mmc0: %s: clock divider set to %d, pre-divider to %d\n",
+ 		__func__, div, pre_div);
 
 	/* need to wait the bit 3 of the PRSSTAT to be set, make sure card clock is stable */
 	ret = readl_poll_timeout(host->ioaddr + ESDHC_PRSSTAT, temp,
 				(temp & ESDHC_CLOCK_STABLE), 2, 100);
 	if (ret == -ETIMEDOUT)
 		dev_warn(mmc_dev(host->mmc), "card clock still not stable in 100us!.\n");
+	pr_info("mmc0: %s: clock stable bit %s\n", __func__,
+			(readl(host->ioaddr + ESDHC_PRSSTAT) & ESDHC_CLOCK_STABLE) ? 
+ 			"set" : "not set");
 
 	if (esdhc_is_usdhc(imx_data)) {
 		val = readl(host->ioaddr + ESDHC_VENDOR_SPEC);
@@ -1015,6 +1040,7 @@ static inline void esdhc_pltfm_set_clock(struct sdhci_host *host,
 
 static unsigned int esdhc_pltfm_get_ro(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	struct esdhc_platform_data *boarddata = &imx_data->boarddata;
@@ -1034,6 +1060,8 @@ static unsigned int esdhc_pltfm_get_ro(struct sdhci_host *host)
 
 static void esdhc_pltfm_set_bus_width(struct sdhci_host *host, int width)
 {
+	pr_info("mmc0: %s\n", __func__);
+	pr_info("mmc0: %s: setting bus width to %d\n", __func__, width);
 	u32 ctrl;
 
 	switch (width) {
@@ -1048,12 +1076,17 @@ static void esdhc_pltfm_set_bus_width(struct sdhci_host *host, int width)
 		break;
 	}
 
+	pr_info("mmc0: %s: host control register set to 0x%02x\n",
+			__func__, readb(host->ioaddr + SDHCI_HOST_CONTROL));
 	esdhc_clrset_le(host, ESDHC_CTRL_BUSWIDTH_MASK, ctrl,
 			SDHCI_HOST_CONTROL);
+	pr_info("mmc0: %s: host control register set to 0x%02x\n",
+			__func__, readb(host->ioaddr + SDHCI_HOST_CONTROL));
 }
 
 static int usdhc_execute_tuning(struct mmc_host *mmc, u32 opcode)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = mmc_priv(mmc);
 
 	/*
@@ -1068,6 +1101,7 @@ static int usdhc_execute_tuning(struct mmc_host *mmc, u32 opcode)
 
 static void esdhc_poll_sys_ctrl_field(struct sdhci_host *host, u32 field)
 {
+	pr_info("mmc0: %s\n", __func__);
 	int ret;
 	u32 reg;
 
@@ -1081,6 +1115,7 @@ static void esdhc_poll_sys_ctrl_field(struct sdhci_host *host, u32 field)
 
 static void esdhc_cfg_delay_chain(struct sdhci_host *host, u32 val)
 {
+	pr_info("mmc0: %s\n", __func__);
 	esdhc_poll_sys_ctrl_field(host, SYS_CTRL_RSTA);
 	writel(DLY_CELL_SET_PRE(val),
 	       host->ioaddr + ESDHC_TUNE_CTRL_STATUS);
@@ -1089,6 +1124,7 @@ static void esdhc_cfg_delay_chain(struct sdhci_host *host, u32 val)
 
 static int esdhc_executing_tuning(struct sdhci_host *host, u32 opcode)
 {
+	pr_info("mmc0: %s\n", __func__);
 	u32 r, value_start, value_end;
 	bool tuning_failed_before = false;
 
@@ -1152,6 +1188,7 @@ static int esdhc_executing_tuning(struct sdhci_host *host, u32 opcode)
 
 static void esdhc_hs400_enhanced_strobe(struct mmc_host *mmc, struct mmc_ios *ios)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = mmc_priv(mmc);
 	u32 m;
 
@@ -1166,6 +1203,7 @@ static void esdhc_hs400_enhanced_strobe(struct mmc_host *mmc, struct mmc_ios *io
 static int esdhc_change_pinstate(struct sdhci_host *host,
 						unsigned int uhs)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	struct pinctrl_state *pinctrl;
@@ -1206,6 +1244,7 @@ static int esdhc_change_pinstate(struct sdhci_host *host,
  */
 static void esdhc_set_strobe_dll(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	u32 strobe_delay;
@@ -1247,6 +1286,7 @@ static void esdhc_set_strobe_dll(struct sdhci_host *host)
 
 static void esdhc_reset_tuning(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	u32 ctrl;
@@ -1285,6 +1325,7 @@ static void esdhc_reset_tuning(struct sdhci_host *host)
 
 static void esdhc_set_uhs_signaling(struct sdhci_host *host, unsigned timing)
 {
+	pr_info("mmc0: %s\n", __func__);
 	u32 m;
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
@@ -1344,6 +1385,7 @@ static void esdhc_set_uhs_signaling(struct sdhci_host *host, unsigned timing)
 
 static void esdhc_reset(struct sdhci_host *host, u8 mask)
 {
+	pr_info("mmc0: %s\n", __func__);
 	sdhci_and_cqhci_reset(host, mask);
 
 	sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
@@ -1352,6 +1394,7 @@ static void esdhc_reset(struct sdhci_host *host, u8 mask)
 
 static unsigned int esdhc_get_max_timeout_count(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 
@@ -1361,6 +1404,7 @@ static unsigned int esdhc_get_max_timeout_count(struct sdhci_host *host)
 
 static void esdhc_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 
@@ -1372,6 +1416,10 @@ static void esdhc_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
 
 static u32 esdhc_cqhci_irq(struct sdhci_host *host, u32 intmask)
 {
+	static int irq_count = 0;
+	if(irq_count++ % 100 == 0)
+		pr_info("mmc0: %s\n", __func__);
+
 	int cmd_error = 0;
 	int data_error = 0;
 
@@ -1413,6 +1461,7 @@ static const struct sdhci_pltfm_data sdhci_esdhc_imx_pdata = {
 
 static void sdhci_esdhc_imx_hwinit(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
 	struct cqhci_host *cq_host = host->mmc->cqe_private;
@@ -1424,6 +1473,8 @@ static void sdhci_esdhc_imx_hwinit(struct sdhci_host *host)
 		 * level setting to something insane.  Change it back here.
 		 */
 		writel(ESDHC_WTMK_DEFAULT_VAL, host->ioaddr + ESDHC_WTMK_LVL);
+		pr_info("mmc0: %s: watermark level set to 0x%08x\n", __func__,
+			readl(host->ioaddr + ESDHC_WTMK_LVL));
 
 		/*
 		 * ROM code will change the bit burst_length_enable setting
@@ -1439,6 +1490,9 @@ static void sdhci_esdhc_imx_hwinit(struct sdhci_host *host)
 		writel(readl(host->ioaddr + SDHCI_HOST_CONTROL)
 			| ESDHC_BURST_LEN_EN_INCR,
 			host->ioaddr + SDHCI_HOST_CONTROL);
+		pr_info("mmc0: %s: DMA settings configured - BURST_LEN_EN: %d\n",
+			__func__, !!(readl(host->ioaddr + SDHCI_HOST_CONTROL) & 
+			ESDHC_BURST_LEN_EN_INCR));
 
 		if (!is_s32cc_usdhc(imx_data)) {
 			/*
@@ -1533,6 +1587,7 @@ static void sdhci_esdhc_imx_hwinit(struct sdhci_host *host)
 
 static void esdhc_cqe_enable(struct mmc_host *mmc)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = mmc_priv(mmc);
 	struct cqhci_host *cq_host = mmc->cqe_private;
 	u32 reg;
@@ -1584,6 +1639,7 @@ static void esdhc_cqe_enable(struct mmc_host *mmc)
 
 static void esdhc_sdhci_dumpregs(struct mmc_host *mmc)
 {
+	pr_info("mmc0: %s\n", __func__);
 	sdhci_dumpregs(mmc_priv(mmc));
 }
 
@@ -1598,6 +1654,7 @@ sdhci_esdhc_imx_probe_dt(struct platform_device *pdev,
 			 struct sdhci_host *host,
 			 struct pltfm_imx_data *imx_data)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct device_node *np = pdev->dev.of_node;
 	struct esdhc_platform_data *boarddata = &imx_data->boarddata;
 	int ret;
@@ -1617,11 +1674,16 @@ sdhci_esdhc_imx_probe_dt(struct platform_device *pdev,
 		host->mmc->caps2 |= MMC_CAP2_NO_WRITE_PROTECT;
 
 	of_property_read_u32(np, "fsl,tuning-step", &boarddata->tuning_step);
+	pr_info("mmc0: %s: tuning step: %u\n", __func__, boarddata->tuning_step);
 	of_property_read_u32(np, "fsl,tuning-start-tap",
 			     &boarddata->tuning_start_tap);
+	pr_info("mmc0: %s: tuning start tap: %u\n", __func__, 
+			boarddata->tuning_start_tap);
 
 	of_property_read_u32(np, "fsl,strobe-dll-delay-target",
 				&boarddata->strobe_dll_delay_target);
+	pr_info("mmc0: %s: strobe DLL delay target: %u\n", __func__, 
+			boarddata->strobe_dll_delay_target);
 	if (of_find_property(np, "no-1-8-v", NULL))
 		host->quirks2 |= SDHCI_QUIRK2_NO_1_8_V;
 
@@ -1654,6 +1716,7 @@ sdhci_esdhc_imx_probe_dt(struct platform_device *pdev,
 
 static int sdhci_esdhc_imx_enable_clks(struct pltfm_imx_data *data)
 {
+	pr_info("mmc0: %s\n", __func__);
 	int ret = 0;
 
 	if (!data->clks_enabled) {
@@ -1680,6 +1743,7 @@ disable_per_clk:
 
 static void sdhci_esdhc_imx_disable_clks(struct pltfm_imx_data *data)
 {
+	pr_info("mmc0: %s\n", __func__);
 	if (data->clks_enabled) {
 		clk_disable_unprepare(data->clk_ahb);
 		clk_disable_unprepare(data->clk_ipg);
@@ -1690,6 +1754,7 @@ static void sdhci_esdhc_imx_disable_clks(struct pltfm_imx_data *data)
 
 static int sdhci_esdhc_imx_probe(struct platform_device *pdev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host;
 	struct sdhci_host *host;
 	struct cqhci_host *cq_host;
@@ -1735,6 +1800,11 @@ static int sdhci_esdhc_imx_probe(struct platform_device *pdev)
 		goto free_sdhci;
 
 	pltfm_host->clock = clk_get_rate(pltfm_host->clk);
+
+	pr_info("mmc0: %s: clocks initialized - ipg: %lu, ahb: %lu, per: %lu\n", 
+			__func__, clk_get_rate(imx_data->clk_ipg),
+			clk_get_rate(imx_data->clk_ahb),
+			clk_get_rate(imx_data->clk_per));
 
 	imx_data->pinctrl = devm_pinctrl_get(&pdev->dev);
 	if (IS_ERR(imx_data->pinctrl))
@@ -1834,6 +1904,7 @@ free_sdhci:
 
 static int sdhci_esdhc_imx_remove(struct platform_device *pdev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = platform_get_drvdata(pdev);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
@@ -1859,6 +1930,7 @@ static int sdhci_esdhc_imx_remove(struct platform_device *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int sdhci_esdhc_suspend(struct device *dev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = dev_get_drvdata(dev);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
@@ -1894,6 +1966,7 @@ static int sdhci_esdhc_suspend(struct device *dev)
 
 static int sdhci_esdhc_resume(struct device *dev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = dev_get_drvdata(dev);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
@@ -1920,6 +1993,7 @@ static int sdhci_esdhc_resume(struct device *dev)
 #ifdef CONFIG_PM
 static int sdhci_esdhc_runtime_suspend(struct device *dev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = dev_get_drvdata(dev);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
@@ -1950,6 +2024,7 @@ static int sdhci_esdhc_runtime_suspend(struct device *dev)
 
 static int sdhci_esdhc_runtime_resume(struct device *dev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = dev_get_drvdata(dev);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);

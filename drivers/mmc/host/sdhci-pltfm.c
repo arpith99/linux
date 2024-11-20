@@ -15,6 +15,7 @@
  *
  * Inspired by sdhci-pci.c, by Pierre Ossman
  */
+#define DEBUG
 
 #include <linux/err.h>
 #include <linux/module.h>
@@ -27,6 +28,7 @@
 
 unsigned int sdhci_pltfm_clk_get_max_clock(struct sdhci_host *host)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 
 	return clk_get_rate(pltfm_host->clk);
@@ -42,6 +44,7 @@ static const struct sdhci_ops sdhci_pltfm_ops = {
 
 static bool sdhci_wp_inverted(struct device *dev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	if (device_property_present(dev, "sdhci,wp-inverted") ||
 	    device_property_present(dev, "wp-inverted"))
 		return true;
@@ -57,6 +60,7 @@ static bool sdhci_wp_inverted(struct device *dev)
 #ifdef CONFIG_OF
 static void sdhci_get_compatibility(struct platform_device *pdev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = platform_get_drvdata(pdev);
 	struct device_node *np = pdev->dev.of_node;
 
@@ -78,6 +82,7 @@ void sdhci_get_compatibility(struct platform_device *pdev) {}
 
 void sdhci_get_property(struct platform_device *pdev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct device *dev = &pdev->dev;
 	struct sdhci_host *host = platform_get_drvdata(pdev);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
@@ -117,6 +122,7 @@ struct sdhci_host *sdhci_pltfm_init(struct platform_device *pdev,
 				    const struct sdhci_pltfm_data *pdata,
 				    size_t priv_size)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host;
 	void __iomem *ioaddr;
 	int irq, ret;
@@ -133,6 +139,8 @@ struct sdhci_host *sdhci_pltfm_init(struct platform_device *pdev,
 		goto err;
 	}
 
+    pr_info("mmc0: %s: allocating host with priv_size %zu\n", 
+            __func__, priv_size);
 	host = sdhci_alloc_host(&pdev->dev,
 		sizeof(struct sdhci_pltfm_host) + priv_size);
 
@@ -141,6 +149,7 @@ struct sdhci_host *sdhci_pltfm_init(struct platform_device *pdev,
 		goto err;
 	}
 
+    pr_info("mmc0: %s: initializing host: irq=%d\n", __func__, irq);
 	host->ioaddr = ioaddr;
 	host->irq = irq;
 	host->hw_name = dev_name(&pdev->dev);
@@ -149,6 +158,8 @@ struct sdhci_host *sdhci_pltfm_init(struct platform_device *pdev,
 	else
 		host->ops = &sdhci_pltfm_ops;
 	if (pdata) {
+        pr_info("mmc0: %s: setting quirks: 0x%x, quirks2: 0x%x\n",
+                __func__, pdata->quirks, pdata->quirks2);
 		host->quirks = pdata->quirks;
 		host->quirks2 = pdata->quirks2;
 	}
@@ -164,6 +175,7 @@ EXPORT_SYMBOL_GPL(sdhci_pltfm_init);
 
 void sdhci_pltfm_free(struct platform_device *pdev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = platform_get_drvdata(pdev);
 
 	sdhci_free_host(host);
@@ -174,6 +186,7 @@ int sdhci_pltfm_register(struct platform_device *pdev,
 			const struct sdhci_pltfm_data *pdata,
 			size_t priv_size)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host;
 	int ret = 0;
 
@@ -193,6 +206,7 @@ EXPORT_SYMBOL_GPL(sdhci_pltfm_register);
 
 int sdhci_pltfm_unregister(struct platform_device *pdev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = platform_get_drvdata(pdev);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	int dead = (readl(host->ioaddr + SDHCI_INT_STATUS) == 0xffffffff);
@@ -208,6 +222,7 @@ EXPORT_SYMBOL_GPL(sdhci_pltfm_unregister);
 #ifdef CONFIG_PM_SLEEP
 int sdhci_pltfm_suspend(struct device *dev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = dev_get_drvdata(dev);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	int ret;
@@ -227,6 +242,7 @@ EXPORT_SYMBOL_GPL(sdhci_pltfm_suspend);
 
 int sdhci_pltfm_resume(struct device *dev)
 {
+	pr_info("mmc0: %s\n", __func__);
 	struct sdhci_host *host = dev_get_drvdata(dev);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	int ret;
@@ -251,6 +267,7 @@ EXPORT_SYMBOL_GPL(sdhci_pltfm_pmops);
 
 static int __init sdhci_pltfm_drv_init(void)
 {
+	pr_info("mmc0: %s\n", __func__);
 	pr_info("sdhci-pltfm: SDHCI platform and OF driver helper\n");
 
 	return 0;
@@ -259,6 +276,7 @@ module_init(sdhci_pltfm_drv_init);
 
 static void __exit sdhci_pltfm_drv_exit(void)
 {
+	pr_info("mmc0: %s\n", __func__);
 }
 module_exit(sdhci_pltfm_drv_exit);
 
